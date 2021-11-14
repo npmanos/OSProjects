@@ -33,20 +33,20 @@ See the [instructions](docs/OSProjectA_2021.doc) for full details.
 
 ### Build and Test
 1. Assemble the bootloader
-   ```console
-   $ nasm bootload.asm
+   ```
+   nasm bootload.asm
    ```
 2. Copy the bootloader to the beginning of diskc.img
-   ```console
-   $ dd if=bootload of=diskc.img bs=512 count=1 conv=notrunc
+   ```
+   dd if=bootload of=diskc.img bs=512 count=1 conv=notrunc
    ```
 3. Run the build script
-   ```console
-   $ ./build.sh
+   ```
+   ./build.sh
    ```
 4. Run the simulator
-   ```console
-   $ java -jar simulator.jar
+   ```
+   java -jar simulator.jar
    ```
 5. Click the "Choose" button next to Hard Disk C and select `diskc.img`
 6. Set Cylinders to 63, Heads to 255, and Sectors to 1000
