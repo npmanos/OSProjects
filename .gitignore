@@ -81,3 +81,6 @@ dkms.conf
 
 # Libreoffice Lock file
 .~lock.*
+
+# Archive
+*.tar
