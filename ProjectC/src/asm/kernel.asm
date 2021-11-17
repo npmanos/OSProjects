@@ -49,7 +49,6 @@ intr:	int #0x00	;call the interrupt (00 will be changed above)
 ;this sets up the interrupt 0x21 vector
 ;when an interrupt 0x21 is called in the future, 
 ;_interrupt21ServiceRoutine will run
-
 _makeInterrupt21:
 	;get the address of the service routine
 	mov dx,#_interrupt21ServiceRoutine

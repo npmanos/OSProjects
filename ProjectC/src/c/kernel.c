@@ -1,3 +1,4 @@
+
 /* 
     COMP 350 OS Kernel
     Project B
@@ -9,57 +10,15 @@ void printChar(char);
 void printString(char *);
 void readString(char *);
 void readSector(char *, int);
+void readFile(char *, char *, int *);
 
 void main()
 {
-    char lineIn[82];
-    char nextLineIn[82];
-    char buffer[512];
-    char nextBuffer[512];
-    char* CRLF = "\xd\xa\0";
-    interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
-
-    /* Step 1: Printing to the screen */
-    printString("STEP 1\0");
-    printString(CRLF);
-    printString("Hello World\0");
-
-    printString(CRLF);
-    printString(CRLF);
-
-    /* Step 2: Reading from the keyboard */
-    printString("STEP 2\0");
-    printString(CRLF);
-    printString("Enter a line: \0");
-    readString(&lineIn);
-    printString(&lineIn);
-
-    printString(CRLF);
-
-    /* Step 3: Read a sector from the disk */
-    printString("STEP 3\0");
-    printString(CRLF);
-    readSector(&buffer, 30);
-    printString(&buffer);
-
-    printString(CRLF);
-    printString(CRLF);
-
-    /* Steps 4 and 5: Make your own interrupts/
-       printString, readString, and readSector interrupt calls */
+    char buffer[13312];
+    int sectorsRead;
     makeInterrupt21();
-    interrupt(0x21, 0, "STEPS 4 & 5\xd\xa\0", 0, 0);
-    /*interrupt(0x21, 0, 0, 0, 0);*/ /* Step 4 */
-    interrupt(0x21, 0, "Enter another line: \0", 0, 0); /* readString and printString */
-    interrupt(0x21, 1, &nextLineIn, 0, 0);
-    interrupt(0x21, 0, &nextLineIn, 0, 0);
-
-    interrupt(0x21, 2, &nextBuffer, 30, 0); /* readSector */
-    interrupt(0x21, 0, &nextBuffer, 0, 0);
-
-    interrupt(0x21, 0, CRLF, 0, 0);
-
-    interrupt(0x21, 3, 0, 0, 0); /* error */
+    interrupt(0x21, 3, "messag", buffer, &sectorsRead);
+    interrupt(0x21, 0, buffer, 0, 0);
 
     while (1);
 }
@@ -112,6 +71,51 @@ void readSector(char* buffer, int sector) {
     interrupt(0x13, 2 * 256 + 1, buffer, sector + 1, 0x80);
 }
 
+void readFile(char* filename, char* buffer, int* sectorsRead) {
+    char dir[512];
+    int i;
+    int j;
+    int match = 1;
+    *sectorsRead = 0;
+
+    readSector(&dir, 2);
+
+    for (i = 0; i < 512; i = i + 32) {
+        for (j = 0; j < 6; j++)
+        {
+            // printChar('r');
+            printChar(dir[i + j]);
+            if (dir[i + j] != filename[j])
+            {
+                match = 0;
+                break;
+            }
+        }
+
+        if (match) {
+            break;
+        } else {
+            match = 1;
+        }
+    }
+
+    if (!match) {
+        return;
+    }
+    printChar(dir[i + j] + 0x30);
+
+    for (i, j; dir[i + j] != 0; i++) {
+        printChar(dir[i + j] + 0x30);
+        // interrupt(0x0, 0, 0, 0, 0);
+        interrupt(0x21, 2, buffer, dir[i + j], 0);
+        // interrupt(0x13, 2 * 256 + 1, buffer, dir[i + j], 0x80);
+        *sectorsRead++;
+        buffer += 512;
+    }
+
+    printChar('d');
+}
+
 void handleInterrupt21(int ax, int bx, int cx, int dx)
 {
     /*printString("Hello interrupt 21!\0");*/ /* Step 4 */
@@ -125,6 +129,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
             break;
         case 0x2:
             readSector(bx, cx);
+            break;
+        case 0x3:
+            readFile(bx, cx, dx);
             break;
         default:
             printString("ERROR! Invalid instruction\0");
