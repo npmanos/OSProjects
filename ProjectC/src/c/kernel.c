@@ -1,7 +1,7 @@
 
 /* 
     COMP 350 OS Kernel
-    Project B
+    Project C
     Author: Nick Manos
     kernel.c
 */
@@ -15,10 +15,15 @@ void readFile(char *, char *, int *);
 void main()
 {
     char buffer[13312];
-    int sectorsRead;
+    int sectorsRead = 0;
     makeInterrupt21();
     interrupt(0x21, 3, "messag", buffer, &sectorsRead);
-    interrupt(0x21, 0, buffer, 0, 0);
+    if (sectorsRead > 0) {
+        interrupt(0x21, 0, buffer, 0, 0);
+    } else {
+        interrupt(0x21, 0, "File \"messag\" not found.\r\n");
+    }
+    
 
     while (1);
 }
@@ -73,19 +78,17 @@ void readSector(char* buffer, int sector) {
 
 void readFile(char* filename, char* buffer, int* sectorsRead) {
     char dir[512];
-    int i;
-    int j;
+    int entry;
+    int offset;
     int match = 1;
     *sectorsRead = 0;
 
     readSector(&dir, 2);
 
-    for (i = 0; i < 512; i = i + 32) {
-        for (j = 0; j < 6; j++)
+    for (entry = 0; entry < 512; entry = entry + 32) {
+        for (offset = 0; offset < 6; offset++)
         {
-            // printChar('r');
-            printChar(dir[i + j]);
-            if (dir[i + j] != filename[j])
+            if (dir[entry + offset] != filename[offset])
             {
                 match = 0;
                 break;
@@ -102,18 +105,12 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
     if (!match) {
         return;
     }
-    printChar(dir[i + j] + 0x30);
 
-    for (i, j; dir[i + j] != 0; i++) {
-        printChar(dir[i + j] + 0x30);
-        // interrupt(0x0, 0, 0, 0, 0);
-        interrupt(0x21, 2, buffer, dir[i + j], 0);
-        // interrupt(0x13, 2 * 256 + 1, buffer, dir[i + j], 0x80);
-        *sectorsRead++;
+    for (entry, offset; dir[entry + offset] != 0; offset++) {
+        interrupt(0x21, 2, buffer, dir[entry + offset], 0);
+        *sectorsRead += 1;
         buffer += 512;
     }
-
-    printChar('d');
 }
 
 void handleInterrupt21(int ax, int bx, int cx, int dx)
