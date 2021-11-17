@@ -12,6 +12,7 @@ void readString(char *);
 void readSector(char *, int);
 void readFile(char *, char *, int *);
 void executeProgram(char *);
+void terminate();
 
 void main()
 {
@@ -27,7 +28,7 @@ void main()
     //     interrupt(0x21, 0, "File \"messag\" not found.\r\n");
     // }
 
-    interrupt(0x21, 4, "tstpr1", 0, 0);
+    interrupt(0x21, 4, "tstpr2", 0, 0);
 
 
     while (1);
@@ -132,6 +133,10 @@ void executeProgram(char* progName) {
     launchProgram(0x2000);
 }
 
+void terminate() {
+    while (1);
+}
+
 void handleInterrupt21(int ax, int bx, int cx, int dx)
 {
     /*printString("Hello interrupt 21!\0");*/ /* Step 4 */
@@ -151,6 +156,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
             break;
         case 0x4:
             executeProgram(bx);
+            break;
+        case 0x5:
+            terminate();
+            break;
         default:
             printString("ERROR! Invalid instruction\0");
             break;
