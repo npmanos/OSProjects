@@ -11,19 +11,24 @@ void printString(char *);
 void readString(char *);
 void readSector(char *, int);
 void readFile(char *, char *, int *);
+void executeProgram(char *);
 
 void main()
 {
-    char buffer[13312];
-    int sectorsRead = 0;
+    // char buffer[13312];
+    // int sectorsRead = 0;
+
     makeInterrupt21();
-    interrupt(0x21, 3, "messag", buffer, &sectorsRead);
-    if (sectorsRead > 0) {
-        interrupt(0x21, 0, buffer, 0, 0);
-    } else {
-        interrupt(0x21, 0, "File \"messag\" not found.\r\n");
-    }
-    
+
+    // interrupt(0x21, 3, "messag", buffer, &sectorsRead);
+    // if (sectorsRead > 0) {
+    //     interrupt(0x21, 0, buffer, 0, 0);
+    // } else {
+    //     interrupt(0x21, 0, "File \"messag\" not found.\r\n");
+    // }
+
+    interrupt(0x21, 4, "tstpr1", 0, 0);
+
 
     while (1);
 }
@@ -113,6 +118,20 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
     }
 }
 
+void executeProgram(char* progName) {
+    char buf[13312];
+    int sectorsRead = 0;
+    int i;
+
+    interrupt(0x21, 3, progName, buf, &sectorsRead);
+
+    for (i = 0; i < 512 * sectorsRead; i++) {
+        putInMemory(0x2000, i, buf[i]);
+    }
+
+    launchProgram(0x2000);
+}
+
 void handleInterrupt21(int ax, int bx, int cx, int dx)
 {
     /*printString("Hello interrupt 21!\0");*/ /* Step 4 */
@@ -130,6 +149,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
         case 0x3:
             readFile(bx, cx, dx);
             break;
+        case 0x4:
+            executeProgram(bx);
         default:
             printString("ERROR! Invalid instruction\0");
             break;
