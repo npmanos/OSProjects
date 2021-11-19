@@ -79,7 +79,6 @@ void readString(char *str) {
                     str--;
                     i--;
                 }
-                // i--;
                 break;
             default:
                 *str = c;
@@ -88,10 +87,7 @@ void readString(char *str) {
                 i++;
                 break;
         }
-        // i++;
     }
-
-    // char[128] = '\0';
 }
 
 void readSector(char* buffer, int sector) {
@@ -132,7 +128,6 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
     for (entry, offset; dir[entry + offset] != 0; offset++)
     {
         interrupt(0x21, 2, buffer, dir[entry + offset], 0);
-        printChar('r');
         *sectorsRead += 1;
         buffer += 512;
     }
@@ -158,8 +153,6 @@ void terminate() {
 
 void handleInterrupt21(int ax, int bx, int cx, int dx)
 {
-    /*printString("Hello interrupt 21!\0");*/ /* Step 4 */
-
     switch (ax) {
         case 0x0:
             printString(bx);

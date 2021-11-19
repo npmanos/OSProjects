@@ -31,17 +31,6 @@ void main() {
         print("/$ \0");
         readLn(input);
 
-        // switch (input) {
-        //     default:
-        //         print("ERROR! Command not found: \0");
-        //         print(input);
-        //         continue;
-        //         break;
-        // }
-
-        // com = input;
-        // while (*com != ' ' )
-
             for (command = 0; command < COM_NUM; command++)
             {
                 match = 0; 
@@ -58,19 +47,9 @@ void main() {
                     }
                 }
 
-                *prMatch = match + '0';
-                prMatch++;
-                *prMatch = '\0';
-                print(prMatch);
-
-                if (match == 1)
+                if (match)
                 {
-                    print("MATCHED!\r\n");
                     break;
-                }
-                else
-                {
-                    print("NO MATCH!\r\n");
                 }
             }
 
