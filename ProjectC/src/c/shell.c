@@ -5,7 +5,7 @@
     shell.c
 */
 
-#define COM_NUM 1
+#define COM_NUM 2
 
 void print(char *);
 void readLn(char *);
@@ -16,6 +16,7 @@ void main() {
     char *input;
     char *arg;
     char *commands[COM_NUM];
+    char *noCom = "\r\n";
     char *typeStr = "type";
     char *testCom, *inCom;
     char *com;
@@ -23,7 +24,8 @@ void main() {
     int c;
     int match;
     char *prMatch;
-    commands[0] = typeStr;
+    commands[0] = noCom;
+    commands[1] = typeStr;
     print("COMP 350 OS vC.5\r\n\r\n\0");
 
     while (1) {
@@ -55,6 +57,8 @@ void main() {
 
         switch (command) {
             case 0:
+                break;
+            case 1:
                 c = 0;
                 while (*inCom != '\r' && *inCom != '\0')
                 {
