@@ -68,21 +68,27 @@ void readString(char *str) {
                 *str = '\0';
                 printChar(c);
                 printChar(0xa);
+                i++;
                 return;
             case 0x8:
-                printChar(0x8);
-                printChar(' ');
-                printChar(0x8);
-                str--;
-                i--;
+                if (i > 0) 
+                {
+                    printChar(0x8);
+                    printChar(' ');
+                    printChar(0x8);
+                    str--;
+                    i--;
+                }
+                // i--;
                 break;
             default:
                 *str = c;
                 printChar(c);
                 str++;
+                i++;
                 break;
         }
-        i++;
+        // i++;
     }
 
     // char[128] = '\0';
