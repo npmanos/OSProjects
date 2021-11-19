@@ -84,3 +84,5 @@ dkms.conf
 
 # Archive
 *.tar
+
+runSim.sh

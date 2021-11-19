@@ -18,8 +18,16 @@ void main()
 {
     // char buffer[13312];
     // int sectorsRead = 0;
+    char shell[6];
+    shell[0] = 's';
+    shell[1] = 'h';
+    shell[2] = 'e';
+    shell[3] = 'l';
+    shell[4] = 'l';
+    shell[5] = '\0';
 
     makeInterrupt21();
+    interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
 
     // interrupt(0x21, 3, "messag", buffer, &sectorsRead);
     // if (sectorsRead > 0) {
@@ -28,10 +36,10 @@ void main()
     //     interrupt(0x21, 0, "File \"messag\" not found.\r\n");
     // }
 
-    interrupt(0x21, 4, "tstpr2", 0, 0);
+    interrupt(0x21, 4, shell, 0, 0);
 
 
-    while (1);
+    // while (1);
 }
 
 void printChar(char c) {
@@ -48,7 +56,7 @@ void printString(char *str) {
 
 void readString(char *str) {
     int i = 0;
-    while (i < 80)
+    while (i < 128)
     {
         int c = interrupt(0x16, 0, 0, 0, 0);
         switch (c) {
@@ -76,6 +84,8 @@ void readString(char *str) {
         }
         i++;
     }
+
+    // char[128] = '\0';
 }
 
 void readSector(char* buffer, int sector) {
@@ -86,12 +96,13 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
     char dir[512];
     int entry;
     int offset;
-    int match = 1;
+    int match;
     *sectorsRead = 0;
 
     readSector(&dir, 2);
 
     for (entry = 0; entry < 512; entry = entry + 32) {
+        match = 0;
         for (offset = 0; offset < 6; offset++)
         {
             if (dir[entry + offset] != filename[offset])
@@ -99,21 +110,23 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
                 match = 0;
                 break;
             }
+
+            match = 1;
         }
 
-        if (match) {
+        if (match == 1) {
             break;
-        } else {
-            match = 1;
         }
     }
 
-    if (!match) {
+    if (match == 0) {
         return;
     }
 
-    for (entry, offset; dir[entry + offset] != 0; offset++) {
+    for (entry, offset; dir[entry + offset] != 0; offset++)
+    {
         interrupt(0x21, 2, buffer, dir[entry + offset], 0);
+        printChar('r');
         *sectorsRead += 1;
         buffer += 512;
     }
