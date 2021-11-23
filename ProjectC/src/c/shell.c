@@ -13,6 +13,7 @@ void readLn(char *);
 void file(char *);
 void type(char *);
 void exec(char *);
+void getArg(char *, char *);
 
 void main() {
     char *input;
@@ -23,73 +24,53 @@ void main() {
     char *typeStr = "type";
     char *execStr = "exec";
     char *testCom, *inCom;
-    char *com;
-    int command;
-    int c;
+    int com;
     int match;
     char *prMatch;
+    int c;
     commands[0] = CRLF;
     commands[1] = typeStr;
     commands[2] = execStr;
 
-    printLn("COMP 350 OS vC.6\r\n");
+    printLn("COMP 350 OS vC\r\n");
 
     while (1) {
         input = "";
         print("/$ ");
         readLn(input);
 
-            for (command = 0; command < COM_NUM; command++)
+        for (com = 0; com < COM_NUM; com++)
+        {
+            match = 0; 
+            for (inCom = input, testCom = commands[com]; *inCom != ' ' && *inCom != TERM; inCom++, testCom++)
             {
-                match = 0; 
-                for (inCom = input, testCom = commands[command]; *inCom != ' ' && *inCom != TERM; inCom++, testCom++)
+                if (*inCom != *testCom)
                 {
-                    if (*inCom != *testCom)
-                    {
-                        match = 0;
-                        break;
-                    }
-                    else
-                    {
-                        match = 1;
-                    }
-                }
-
-                if (match)
-                {
+                    match = 0;
                     break;
+                }
+                else
+                {
+                    match = 1;
                 }
             }
 
-        switch (command) {
+            if (match)
+            {
+                break;
+            }
+        }
+
+        switch (com) {
             case 0:
                 break;
             case 1:
-                c = 0;
-                while (*inCom != '\r' && *inCom != TERM)
-                {
-                    *arg = *inCom;
-                    arg++;
-                    inCom++;
-                    c++;
-                }
-                *arg = TERM;
-                arg -= c;
+                getArg(inCom, arg);
                 type(++arg);
                 print(CRLF);
                 break;
             case 2:
-                for (c = 0; *inCom != '\r' && *inCom != TERM; arg++, inCom++, c++)
-                {
-                    *arg = *inCom;
-                    // arg++;
-                    // inCom++;
-                    // c++;
-                }
-
-                *arg = TERM;
-                arg -= c;
-
+                getArg(inCom, arg);
                 exec(++arg);
                 print(CRLF);
                 break;
@@ -110,6 +91,15 @@ void print(char* str) {
 void printLn(char* str) {
     syscall(0, str, 0, 0);
     syscall(0, "\r\n", 0, 0);
+}
+
+void getArg(char* input, char* arg) {
+    int c;
+
+    for (c = 0; *input != '\r' && *input != '\0'; arg++, input++, c++)
+    {
+        *arg = *input;
+    }
 }
 
 void readLn(char* buf) {

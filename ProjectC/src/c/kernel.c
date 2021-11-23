@@ -1,4 +1,3 @@
-
 /* 
     COMP 350 OS Kernel
     Project C
@@ -20,7 +19,6 @@ void main()
 {
     // char buffer[13312];
     // int sectorsRead = 0;
-    // char shell[6];
     shell[0] = 's';
     shell[1] = 'h';
     shell[2] = 'e';
@@ -31,6 +29,7 @@ void main()
     makeInterrupt21();
     interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
 
+    // STEP 1
     // interrupt(0x21, 3, "messag", buffer, &sectorsRead);
     // if (sectorsRead > 0) {
     //     interrupt(0x21, 0, buffer, 0, 0);
@@ -117,12 +116,12 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
             match = 1;
         }
 
-        if (match == 1) {
+        if (match) {
             break;
         }
     }
 
-    if (match == 0) {
+    if (!match) {
         return;
     }
 
@@ -151,7 +150,6 @@ void executeProgram(char* progName) {
 }
 
 void terminate() {
-    // char shell[6];
     shell[0] = 's';
     shell[1] = 'h';
     shell[2] = 'e';
