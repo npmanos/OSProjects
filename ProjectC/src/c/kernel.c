@@ -30,7 +30,6 @@ void main()
 
     makeInterrupt21();
     interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
-    // interrupt(0x21, 0, "COMP 350 OS vC.5\r\n\r\n\0", 0, 0);
 
     // interrupt(0x21, 3, "messag", buffer, &sectorsRead);
     // if (sectorsRead > 0) {

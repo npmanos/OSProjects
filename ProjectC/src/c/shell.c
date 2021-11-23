@@ -18,7 +18,8 @@ void main() {
     char *input;
     char *arg;
     char *commands[COM_NUM];
-    char *noCom = "\r\n";
+    char TERM = '\0';
+    char *CRLF = "\r\n";
     char *typeStr = "type";
     char *execStr = "exec";
     char *testCom, *inCom;
@@ -27,21 +28,21 @@ void main() {
     int c;
     int match;
     char *prMatch;
-    commands[0] = noCom;
+    commands[0] = CRLF;
     commands[1] = typeStr;
     commands[2] = execStr;
 
-    print("COMP 350 OS vC.6\r\n\r\n\0");
+    printLn("COMP 350 OS vC.6\r\n");
 
     while (1) {
         input = "";
-        print("/$ \0");
+        print("/$ ");
         readLn(input);
 
             for (command = 0; command < COM_NUM; command++)
             {
                 match = 0; 
-                for (inCom = input, testCom = commands[command]; *inCom != ' ' && *inCom != '\0'; inCom++, testCom++)
+                for (inCom = input, testCom = commands[command]; *inCom != ' ' && *inCom != TERM; inCom++, testCom++)
                 {
                     if (*inCom != *testCom)
                     {
@@ -65,20 +66,20 @@ void main() {
                 break;
             case 1:
                 c = 0;
-                while (*inCom != '\r' && *inCom != '\0')
+                while (*inCom != '\r' && *inCom != TERM)
                 {
                     *arg = *inCom;
                     arg++;
                     inCom++;
                     c++;
                 }
-                *arg = '\0';
+                *arg = TERM;
                 arg -= c;
                 type(++arg);
-                print("\r\n");
+                print(CRLF);
                 break;
             case 2:
-                for (c = 0; *inCom != '\r' && *inCom != '\0'; arg++, inCom++, c++)
+                for (c = 0; *inCom != '\r' && *inCom != TERM; arg++, inCom++, c++)
                 {
                     *arg = *inCom;
                     // arg++;
@@ -86,19 +87,19 @@ void main() {
                     // c++;
                 }
 
-                *arg = '\0';
+                *arg = TERM;
                 arg -= c;
 
                 exec(++arg);
-                printLn("");
+                print(CRLF);
                 break;
             default:
-                print("ERROR! Command not found: \0");
+                print("ERROR! Command not found: ");
                 print(input);
                 break;
             }
 
-        print("\r\n\0");
+        print(CRLF);
     }
 }
 
@@ -126,7 +127,7 @@ void type(char* file) {
     } else {
         print("Cannot type '");
         print(file);
-        print("': No such file\0");
+        print("': No such file");
     }
 }
 
