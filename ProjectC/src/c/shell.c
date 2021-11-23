@@ -26,6 +26,7 @@ void main() {
     char *prMatch;
     commands[0] = noCom;
     commands[1] = typeStr;
+
     print("COMP 350 OS vC.5\r\n\r\n\0");
 
     while (1) {

@@ -14,11 +14,13 @@ void readFile(char *, char *, int *);
 void executeProgram(char *);
 void terminate();
 
+char shell[6];
+
 void main()
 {
     // char buffer[13312];
     // int sectorsRead = 0;
-    char shell[6];
+    // char shell[6];
     shell[0] = 's';
     shell[1] = 'h';
     shell[2] = 'e';
@@ -28,6 +30,7 @@ void main()
 
     makeInterrupt21();
     interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
+    // interrupt(0x21, 0, "COMP 350 OS vC.5\r\n\r\n\0", 0, 0);
 
     // interrupt(0x21, 3, "messag", buffer, &sectorsRead);
     // if (sectorsRead > 0) {
@@ -37,7 +40,6 @@ void main()
     // }
 
     interrupt(0x21, 4, shell, 0, 0);
-
 
     // while (1);
 }
@@ -140,15 +142,24 @@ void executeProgram(char* progName) {
 
     interrupt(0x21, 3, progName, buf, &sectorsRead);
 
-    for (i = 0; i < 512 * sectorsRead; i++) {
-        putInMemory(0x2000, i, buf[i]);
-    }
+    if (sectorsRead > 0) {
+        for (i = 0; i < 512 * sectorsRead; i++) {
+            putInMemory(0x2000, i, buf[i]);
+        }
 
-    launchProgram(0x2000);
+        launchProgram(0x2000);
+    }
 }
 
 void terminate() {
-    while (1);
+    // char shell[6];
+    // shell[0] = 's';
+    // shell[1] = 'h';
+    // shell[2] = 'e';
+    // shell[3] = 'l';
+    // shell[4] = 'l';
+    // shell[5] = '\0';
+    interrupt(0x21, 4, shell, 0, 0);
 }
 
 void handleInterrupt21(int ax, int bx, int cx, int dx)
