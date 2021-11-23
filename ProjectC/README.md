@@ -4,7 +4,7 @@
 Write routines to read files into memory and execute programs and write a basic shell program.
 
 ## Steps
-See the [instructions](docs/OSProjectB_2021.pdf) for details.
+See the [instructions](docs/OSProjectC_2021.pdf) for details.
  - [x] Step 1: Read a file and print it
  - [x] Step 2: Load a program and execute it
  - [x] Step 3: Terminate program system call
@@ -41,7 +41,7 @@ See the [instructions](docs/OSProjectB_2021.pdf) for details.
    ```
    Cannot type 'hellow': No such file
    ``` 
-9.  At the shell prompt, type `exec tstpr2`. The shell should print:
+9. At the shell prompt, type `exec tstpr2`. The shell should print:
    ```
    tstpr2 is working!
    COMP 350 OS vC
