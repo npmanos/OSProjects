@@ -9,6 +9,7 @@ void printChar(char);
 void printString(char *);
 void readString(char *);
 void readSector(char *, int);
+void writeSector(char *, int);
 void readFile(char *, char *, int *);
 void executeProgram(char *);
 void terminate();
@@ -91,7 +92,11 @@ void readString(char *str) {
 }
 
 void readSector(char* buffer, int sector) {
-    interrupt(0x13, 2 * 256 + 1, buffer, sector + 1, 0x80);
+    interrupt(0x13, (2 << 8) + 1, buffer, sector + 1, 0x80);
+}
+
+void writeSector(char* buffer, int sector) {
+    interrupt(0x13, (3 << 8) + 1, buffer, sector + 1, 0x80);
 }
 
 void readFile(char* filename, char* buffer, int* sectorsRead) {
@@ -179,6 +184,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
             break;
         case 0x5:
             terminate();
+            break;
+        case 0x6:
+            writeSector(bx, cx);
             break;
         default:
             printString("ERROR! Invalid instruction\0");
