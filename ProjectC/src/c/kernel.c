@@ -153,12 +153,12 @@ void executeProgram(char* progName) {
 
 void terminate() {
     // char shell[6];
-    // shell[0] = 's';
-    // shell[1] = 'h';
-    // shell[2] = 'e';
-    // shell[3] = 'l';
-    // shell[4] = 'l';
-    // shell[5] = '\0';
+    shell[0] = 's';
+    shell[1] = 'h';
+    shell[2] = 'e';
+    shell[3] = 'l';
+    shell[4] = 'l';
+    shell[5] = '\0';
     interrupt(0x21, 4, shell, 0, 0);
 }
 
