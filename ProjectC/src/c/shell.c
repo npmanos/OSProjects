@@ -100,6 +100,8 @@ void getArg(char* input, char* arg) {
     {
         *arg = *input;
     }
+
+    *arg = '\0';
 }
 
 void readLn(char* buf) {
