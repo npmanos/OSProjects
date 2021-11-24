@@ -5,15 +5,18 @@
     shell.c
 */
 
-#define COM_NUM 3
+#define COM_NUM 4
 
 void print(char *);
 void printLn(char *);
 void readLn(char *);
+int mod(int, int);
+
+void getArg(char *, char *);
 void file(char *);
 void type(char *);
 void exec(char *);
-void getArg(char *, char *);
+void dir();
 
 void main() {
     char *input;
@@ -23,6 +26,7 @@ void main() {
     char *CRLF = "\r\n";
     char *typeStr = "type";
     char *execStr = "exec";
+    char *dirStr = "dir";
     char *testCom, *inCom;
     int com;
     int match;
@@ -31,8 +35,9 @@ void main() {
     commands[0] = CRLF;
     commands[1] = typeStr;
     commands[2] = execStr;
+    commands[3] = dirStr;
 
-    printLn("COMP 350 OS vC\r\n");
+    printLn("COMP 350 OS vD.2\r\n");
 
     while (1) {
         input = "";
@@ -42,7 +47,7 @@ void main() {
         for (com = 0; com < COM_NUM; com++)
         {
             match = 0; 
-            for (inCom = input, testCom = commands[com]; *inCom != ' ' && *inCom != TERM; inCom++, testCom++)
+            for (inCom = input, testCom = commands[com]; *inCom != ' ' && *testCom != '\0'; inCom++, testCom++)
             {
                 if (*inCom != *testCom)
                 {
@@ -73,6 +78,9 @@ void main() {
                 getArg(inCom, arg);
                 exec(++arg);
                 print(CRLF);
+                break;
+            case 3:
+                dir();
                 break;
             default:
                 print("ERROR! Command not found: ");
@@ -108,6 +116,10 @@ void readLn(char* buf) {
     syscall(1, buf, 0, 0);
 }
 
+int mod(int a, int b) {
+    return a - (a / b * b);
+}
+
 void type(char* file) {
     char buf[13312];
     int sectors;
@@ -135,4 +147,44 @@ void exec(char* program) {
         print("ERROR! Program not found: ");
         printLn(program);
     }
+}
+
+void dir() {
+    char dir[512];
+    char filename[7];
+    char sizeStr[3];
+    int entry;
+    int offset;
+    int s;
+
+    syscall(2, dir, 2, 0);
+    for (entry = 0; entry < 512; entry += 32) {
+        if (dir[entry] == '\0') {
+            continue;
+        }
+
+        for (offset = 0; offset < 6 && dir[entry + offset] != '\0'; offset++) {
+            filename[offset] = dir[entry + offset];
+        }
+
+        filename[offset] = '\0';
+
+        for (offset = 6, s = 0; offset < 26 && dir[entry + offset] != '\0'; offset++, s++);
+
+        print(filename);
+        print(" (");
+        if (s >= 10) {
+            sizeStr[0] = (s / 10) + '0';
+        }
+        sizeStr[0 + (s >= 10)] = mod(s, 10) + '0';
+        sizeStr[1 + (s >= 10)] = '\0';
+        print(sizeStr);
+        if (s > 1) {
+            printLn(" sectors)");
+        } else {
+            printLn(" sector)");
+        }
+        
+    }
+
 }
