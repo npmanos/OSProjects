@@ -1,6 +1,6 @@
 /* 
     COMP 350 OS Kernel
-    Project C
+    Project D
     Author: Nick Manos
     kernel.c
 */
@@ -11,6 +11,7 @@ void readString(char *);
 void readSector(char *, int);
 void writeSector(char *, int);
 void readFile(char *, char *, int *);
+void deleteFile(char*);
 void executeProgram(char *);
 void terminate();
 
@@ -138,6 +139,49 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
     }
 }
 
+void deleteFile(char* filename) {
+    char map[512];
+    char dir[512];
+    int entry;
+    int offset;
+    int match;
+
+    readSector(map, 1);
+    readSector(dir, 2);
+
+    for (entry = 0; entry < 512; entry = entry + 32) {
+        match = 0;
+        for (offset = 0; offset < 6; offset++)
+        {
+            if (dir[entry + offset] != filename[offset])
+            {
+                match = 0;
+                break;
+            }
+
+            match = 1;
+        }
+
+        if (match) {
+            break;
+        }
+    }
+
+    if (!match) {
+        return;
+    }
+
+    dir[entry] = '\0';
+
+    for (entry, offset; dir[entry + offset] != 0; offset++)
+    {
+        map[dir[entry + offset]] = '\0';
+    }
+
+    writeSector(map, 1);
+    writeSector(dir, 2);
+}
+
 void executeProgram(char* progName) {
     char buf[13312];
     int sectorsRead = 0;
@@ -187,6 +231,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
             break;
         case 0x6:
             writeSector(bx, cx);
+            break;
+        case 0x7:
+            deleteFile(bx);
             break;
         default:
             printString("ERROR! Invalid instruction\0");

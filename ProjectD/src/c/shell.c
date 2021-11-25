@@ -1,11 +1,11 @@
 /* 
     COMP 350 OS Shell
-    Project C
+    Project D
     Author: Nick Manos
     shell.c
 */
 
-#define COM_NUM 4
+#define COM_NUM 5
 
 void print(char *);
 void printLn(char *);
@@ -17,6 +17,7 @@ void file(char *);
 void type(char *);
 void exec(char *);
 void dir();
+void del(char *);
 
 void main() {
     char *input;
@@ -27,6 +28,7 @@ void main() {
     char *typeStr = "type";
     char *execStr = "exec";
     char *dirStr = "dir";
+    char *delStr = "del";
     char *testCom, *inCom;
     int com;
     int match;
@@ -36,8 +38,9 @@ void main() {
     commands[1] = typeStr;
     commands[2] = execStr;
     commands[3] = dirStr;
+    commands[4] = delStr;
 
-    printLn("COMP 350 OS vD.2\r\n");
+    printLn("COMP 350 OS vD.3\r\n");
 
     while (1) {
         input = "";
@@ -81,6 +84,10 @@ void main() {
                 break;
             case 3:
                 dir();
+                break;
+            case 4:
+                getArg(inCom, arg);
+                del(++arg);
                 break;
             default:
                 print("ERROR! Command not found: ");
@@ -187,4 +194,8 @@ void dir() {
         
     }
 
+}
+
+void del(char *filename) {
+    syscall(7, filename, 0, 0);
 }
