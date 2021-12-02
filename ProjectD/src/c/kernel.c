@@ -11,7 +11,7 @@ void readString(char *);
 void readSector(char *, int);
 void writeSector(char *, int);
 void readFile(char *, char *, int *);
-void writeFile(char *, char *, int *);
+void writeFile(char *, char *, int);
 void deleteFile(char*);
 void executeProgram(char *);
 void terminate();
