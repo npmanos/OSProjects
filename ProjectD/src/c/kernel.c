@@ -11,6 +11,7 @@ void readString(char *);
 void readSector(char *, int);
 void writeSector(char *, int);
 void readFile(char *, char *, int *);
+void writeFile(char *, char *, int *);
 void deleteFile(char*);
 void executeProgram(char *);
 void terminate();
@@ -38,6 +39,9 @@ void main()
     // } else {
     //     interrupt(0x21, 0, "File \"messag\" not found.\r\n");
     // }
+
+    //STEP 4
+    interrupt(0x21, 8, "this is a test message", "tstmg", 3);
 
     interrupt(0x21, 4, shell, 0, 0);
 
@@ -139,6 +143,82 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
     }
 }
 
+void writeFile(char* buffer, char* filename, int size) {
+    char map[512];
+    char dir[512];
+    int byteSize = 512 * size;
+    char wBuf[13312];
+    int sectors[255];
+    int entry;
+    int offset;
+    int sector;
+    int toWrite;
+    int i;
+    int j;
+    int bufSize = sizeof(buffer) / sizeof(buffer[0]);
+
+    readSector(&map, 1);
+    readSector(&dir, 2);
+
+    for (entry = 0; entry < 512 && dir[entry] != '\0'; entry += 32);
+
+    if (entry == 512) {
+        return;
+    }
+
+    for (sector = 3, j = 0; sector < 512 && j < size; sector++) {
+        if (map[sector] == '\0') {
+            sectors[j++] = sector;
+        }
+    }
+
+    if (j < size) {
+        return; // not enough free sectors
+    }
+
+    for (i = 0; i < 512 * size && buffer[i] != '\0'; i++)
+    {
+        wBuf[i] = buffer[i];
+    }
+
+    if (i < 512 * size)
+    {
+        for (; i < 512 * size; i++)
+        {
+            wBuf[i] = '\0';
+        }
+    }
+
+    for (offset = 0; *filename != '\0'; offset++, filename++)
+    {
+        dir[entry + offset] = *filename;
+    }
+
+    for (; offset < 6; offset++) {
+        dir[entry + offset] = '\0';
+    }
+
+    for (i = 0; i < size && offset < 32; i++, offset++) {
+        writeSector(wBuf + (i * 512), sectors[i]);
+        map[sectors[i]] = 0xFF;
+        dir[entry + offset] = sectors[i];
+    }
+
+    // for (sector = 3, toWrite = *size; sector < 512 && toWrite > 0 && offset < 32; sector++) {
+    //     int i;
+    //     int j;
+
+    //     if (map[sector] == '\0')
+    //     {
+    //         map[sector] = 0xFF;
+    //         dir[entry + offset] = sector;
+    //         offset++;
+
+    
+    writeSector(&map, 1);
+    writeSector(&dir, 2);
+}
+
 void deleteFile(char* filename) {
     char map[512];
     char dir[512];
@@ -234,6 +314,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
             break;
         case 0x7:
             deleteFile(bx);
+            break;
+        case 0x8:
+            writeFile(bx, cx, dx);
             break;
         default:
             printString("ERROR! Invalid instruction\0");
