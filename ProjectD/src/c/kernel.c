@@ -115,7 +115,7 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
 
     for (entry = 0; entry < 512; entry = entry + 32) {
         match = 0;
-        for (offset = 0; offset < 6; offset++)
+        for (offset = 0; offset < 6 && dir[entry + offset] != '\0'; offset++)
         {
             if (dir[entry + offset] != filename[offset])
             {
@@ -135,7 +135,7 @@ void readFile(char* filename, char* buffer, int* sectorsRead) {
         return;
     }
 
-    for (entry, offset; dir[entry + offset] != 0; offset++)
+    for (offset = 6; dir[entry + offset] != 0; offset++)
     {
         interrupt(0x21, 2, buffer, dir[entry + offset], 0);
         *sectorsRead += 1;
@@ -147,7 +147,7 @@ void writeFile(char* buffer, char* filename, int size) {
     char map[512];
     char dir[512];
     int byteSize = 512 * size;
-    char wBuf[13312];
+    char zBuf[512];
     int sectors[255];
     int entry;
     int offset;
@@ -155,7 +155,7 @@ void writeFile(char* buffer, char* filename, int size) {
     int toWrite;
     int i;
     int j;
-    int bufSize = sizeof(buffer) / sizeof(buffer[0]);
+    int bufSize = sizeof(buffer);
 
     readSector(&map, 1);
     readSector(&dir, 2);
@@ -176,18 +176,18 @@ void writeFile(char* buffer, char* filename, int size) {
         return; // not enough free sectors
     }
 
-    for (i = 0; i < 512 * size && buffer[i] != '\0'; i++)
-    {
-        wBuf[i] = buffer[i];
-    }
+    // for (i = 0; i < bufSize; i++)
+    // {
+    //     zBuf[i] = buffer[i];
+    // }
 
-    if (i < 512 * size)
-    {
-        for (; i < 512 * size; i++)
-        {
-            wBuf[i] = '\0';
-        }
-    }
+    // if (i < 512 * size)
+    // {
+    //     for (; i < 512 * size; i++)
+    //     {
+    //         zBuf[i] = '\0';
+    //     }
+    // }
 
     for (offset = 0; *filename != '\0'; offset++, filename++)
     {
@@ -198,8 +198,9 @@ void writeFile(char* buffer, char* filename, int size) {
         dir[entry + offset] = '\0';
     }
 
-    for (i = 0; i < size && offset < 32; i++, offset++) {
-        writeSector(wBuf + (i * 512), sectors[i]);
+    for (i = 0; i < size && offset < 32; i++, offset++, buffer += 512) {
+        writeSector(zBuf, sectors[i]);
+        writeSector(buffer, sectors[i]);
         map[sectors[i]] = 0xFF;
         dir[entry + offset] = sectors[i];
     }
