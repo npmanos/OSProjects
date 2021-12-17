@@ -41,7 +41,7 @@ void main()
     // }
 
     //STEP 4
-    interrupt(0x21, 8, "this is a test message", "tstmg", 3);
+    // interrupt(0x21, 8, "this is a test message", "tstmg", 3);
 
     interrupt(0x21, 4, shell, 0, 0);
 
@@ -62,7 +62,7 @@ void printString(char *str) {
 
 void readString(char *str) {
     int i = 0;
-    while (i < 128)
+    while (i < 4096)
     {
         int c = interrupt(0x16, 0, 0, 0, 0);
         switch (c) {
@@ -176,19 +176,6 @@ void writeFile(char* buffer, char* filename, int size) {
         return; // not enough free sectors
     }
 
-    // for (i = 0; i < bufSize; i++)
-    // {
-    //     zBuf[i] = buffer[i];
-    // }
-
-    // if (i < 512 * size)
-    // {
-    //     for (; i < 512 * size; i++)
-    //     {
-    //         zBuf[i] = '\0';
-    //     }
-    // }
-
     for (offset = 0; *filename != '\0'; offset++, filename++)
     {
         dir[entry + offset] = *filename;
@@ -204,17 +191,6 @@ void writeFile(char* buffer, char* filename, int size) {
         map[sectors[i]] = 0xFF;
         dir[entry + offset] = sectors[i];
     }
-
-    // for (sector = 3, toWrite = *size; sector < 512 && toWrite > 0 && offset < 32; sector++) {
-    //     int i;
-    //     int j;
-
-    //     if (map[sector] == '\0')
-    //     {
-    //         map[sector] = 0xFF;
-    //         dir[entry + offset] = sector;
-    //         offset++;
-
     
     writeSector(&map, 1);
     writeSector(&dir, 2);

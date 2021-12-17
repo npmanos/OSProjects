@@ -5,7 +5,7 @@
     shell.c
 */
 
-#define COM_NUM 5
+#define COM_NUM 6
 
 void print(char *);
 void printLn(char *);
@@ -18,9 +18,9 @@ void type(char *);
 void exec(char *);
 void dir();
 void del(char *);
+void copy(char *);
 
 void main() {
-    char *input;
     char *arg;
     char *commands[COM_NUM];
     char TERM = '\0';
@@ -29,7 +29,8 @@ void main() {
     char *execStr = "exec";
     char *dirStr = "dir";
     char *delStr = "del";
-    char *testCom, *inCom;
+    char *copyStr = "copy";
+    char *inCom;
     int com;
     int match;
     char *prMatch;
@@ -39,20 +40,21 @@ void main() {
     commands[2] = execStr;
     commands[3] = dirStr;
     commands[4] = delStr;
+    commands[5] = copyStr;
 
-    printLn("COMP 350 OS vD.3\r\n");
+    printLn("COMP 350 OS vD.5\r\n");
 
     while (1) {
-        input = "";
+        char input[4096];
         print("/$ ");
         readLn(input);
 
         for (com = 0; com < COM_NUM; com++)
         {
             match = 0; 
-            for (inCom = input, testCom = commands[com]; *inCom != ' ' && *testCom != '\0'; inCom++, testCom++)
+            for (inCom = input, c = 0; *inCom != ' ' && commands[com][c] != '\0'; inCom++, c++)
             {
-                if (*inCom != *testCom)
+                if (*inCom != commands[com][c])
                 {
                     match = 0;
                     break;
@@ -89,6 +91,10 @@ void main() {
                 getArg(inCom, arg);
                 del(++arg);
                 break;
+            case 5:
+               getArg(inCom, arg);
+                copy(++arg);
+                break;
             default:
                 print("ERROR! Command not found: ");
                 print(input);
@@ -109,9 +115,8 @@ void printLn(char* str) {
 }
 
 void getArg(char* input, char* arg) {
-    int c;
 
-    for (c = 0; *input != '\r' && *input != '\0'; arg++, input++, c++)
+    for (; *input != '\r' && *input != '\0'; arg++, input++)
     {
         *arg = *input;
     }
@@ -198,4 +203,42 @@ void dir() {
 
 void del(char *filename) {
     syscall(7, filename, 0, 0);
+}
+
+void copy(char *args) {
+    char from[7];
+    char to[7];
+    int n;
+    char buf[13312];
+    int sectors = 0;
+
+    for (n = 0, args; *args != ' '; n++, args++)
+    {
+        from[n] = *args;
+    }
+
+    for (; n < 7; n++)
+    {
+        from[n] = '\0';
+    }
+
+    for (n = 0, args++; *args != '\0'; n++, args++)
+    {
+        to[n] = *args;
+    }
+
+    for (; n < 7; n++)
+    {
+        to[n] = '\0';
+    }
+
+    syscall(3, from, buf, &sectors);
+
+    if (sectors > 0) {
+        syscall(8, buf, to, sectors);
+    } else {
+        print("Cannot copy '");
+        print(from);
+        print("': No such file");
+    }
 }
