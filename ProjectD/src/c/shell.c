@@ -5,7 +5,9 @@
     shell.c
 */
 
-#define COM_NUM 6
+#define COM_NUM 7
+#define CRLF "\r\n"
+#define TERM '\0'
 
 void print(char *);
 void printLn(char *);
@@ -19,17 +21,17 @@ void exec(char *);
 void dir();
 void del(char *);
 void copy(char *);
+void create(char *);
 
 void main() {
     char *arg;
     char *commands[COM_NUM];
-    char TERM = '\0';
-    char *CRLF = "\r\n";
     char *typeStr = "type";
     char *execStr = "exec";
     char *dirStr = "dir";
     char *delStr = "del";
     char *copyStr = "copy";
+    char *createStr = "create";
     char *inCom;
     int com;
     int match;
@@ -41,8 +43,9 @@ void main() {
     commands[3] = dirStr;
     commands[4] = delStr;
     commands[5] = copyStr;
+    commands[6] = createStr;
 
-    printLn("COMP 350 OS vD.5\r\n");
+    printLn("COMP 350 OS vD.6\r\n");
 
     while (1) {
         char input[4096];
@@ -92,9 +95,12 @@ void main() {
                 del(++arg);
                 break;
             case 5:
-               getArg(inCom, arg);
+                getArg(inCom, arg);
                 copy(++arg);
                 break;
+            case 6:
+                getArg(inCom, arg);
+                create(++arg);
             default:
                 print("ERROR! Command not found: ");
                 print(input);
@@ -241,4 +247,36 @@ void copy(char *args) {
         print(from);
         print("': No such file");
     }
+}
+
+void create(char *filename) {
+    char file[13312];
+    char input[13312];
+    char *filePtr = file;
+    int i, bSize, sectors = 0;
+
+    while (bSize < 13311) {
+        print("... ");
+        readLn(input);
+
+        if (input[0] == '\r') { break; }
+
+        for (i = 0; input[i] != TERM && bSize < 13311; i++, filePtr++, bSize++) {
+            *filePtr = input[i];
+        }
+    }
+
+    *filePtr = TERM;
+
+    /* 
+     * If file is empty, sectors = 1.
+     * 
+     * Otherwise:
+     * sectors = byteSize / 512
+     *      + 0 if there is no remainder
+     *      + 1 if there is a remainder
+     */
+    sectors = bSize == 0 ? 1 : bSize / 512 + (mod(bSize, 512) != 0);
+
+    syscall(8, file, filename, sectors);
 }
