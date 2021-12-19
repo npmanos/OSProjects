@@ -101,6 +101,7 @@ void main() {
             case 6:
                 getArg(inCom, arg);
                 create(++arg);
+                break;
             default:
                 print("ERROR! Command not found: ");
                 print(input);
@@ -276,7 +277,8 @@ void create(char *filename) {
      *      + 0 if there is no remainder
      *      + 1 if there is a remainder
      */
-    sectors = bSize == 0 ? 1 : bSize / 512 + (mod(bSize, 512) != 0);
+    sectors = bSize == 0 ? 1 : bSize / 512;
+    if (mod(bSize, 512) != 0) sectors++;
 
     syscall(8, file, filename, sectors);
 }
