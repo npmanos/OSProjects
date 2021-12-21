@@ -222,6 +222,36 @@ void dir()
 
 void del(char *filename)
 {
+    char *protected[2];
+    char *kernelStr = "kernel";
+    char *shellStr = "shell";
+    int file, match, c;
+    protected[0] = kernelStr;
+    protected[1] = shellStr;
+
+    for (file = 0; file < 2; file++)
+    {
+        match = 0;
+        for (c = 0; filename[c] != TERM && protected[file][c] != TERM; c++)
+        {
+            if (filename[c] != protected[file][c])
+            {
+                match = 0;
+                break;
+            }
+            else
+            {
+                match = 1;
+            }
+        }
+
+        if (match)
+        {
+            printLn("ERROR! Permission denied.");
+            return;
+        }
+    }
+    
     syscall(7, filename, 0, 0);
 }
 
