@@ -20,9 +20,11 @@ void executeProgram(char *);
 void terminate();
 
 char shell[6];
+int processActive[8], processStackPointer[8], currentProcess;
 
 void main()
 {
+    int i;
     shell[0] = 's';
     shell[1] = 'h';
     shell[2] = 'e';
@@ -33,6 +35,13 @@ void main()
     makeInterrupt21();
     interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
     interrupt(0x21, 0, "COMP 350 OS vE\r\n\r\n", 0, 0);
+
+    for (i = 0; i < 8; i++) {
+        processActive[i] = 0;
+        processStackPointer[i] = 0xff00;
+    }
+
+    currentProcess = -1;
 
     makeTimerInterrupt();
     interrupt(0x21, 4, shell, 0, 0);
@@ -324,9 +333,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
 }
 
 handleTimerInterrupt(int segment, int sp) {
-    printChar('T');
-    printChar('i');
-    printChar('c');
+    // printChar('T');
+    // printChar('i');
+    // printChar('c');
 
     returnFromTimer(segment, sp);
 }
