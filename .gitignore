@@ -86,3 +86,8 @@ dkms.conf
 *.tar
 
 runSim.sh
+ProjectE/i386-32bit.xml
+ProjectE/gdb_init_real_mode.txt
+*.l
+*.syms
+target.xml
