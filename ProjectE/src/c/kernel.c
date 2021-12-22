@@ -7,6 +7,7 @@
 
 #define CRLF "\r\n"
 #define TERM '\0'
+#define seg(A) (A + 2) * 0x1000
 
 void printChar(char);
 void printString(char *);
@@ -20,7 +21,7 @@ void executeProgram(char *);
 void terminate();
 
 char shell[6];
-int processActive[8], processStackPointer[8], currentProcess;
+int processActive[8], processStackPointer[8], currentPID;
 
 void main()
 {
@@ -41,7 +42,7 @@ void main()
         processStackPointer[i] = 0xff00;
     }
 
-    currentProcess = -1;
+    currentPID = -1;
 
     makeTimerInterrupt();
     interrupt(0x21, 4, shell, 0, 0);
@@ -275,12 +276,24 @@ void executeProgram(char *progName)
 
     if (sectorsRead > 0)
     {
-        for (i = 0; i < 512 * sectorsRead; i++)
-        {
-            putInMemory(0x2000, i, buf[i]);
+      int dataseg = setKernelDataSegment();
+      int processSeg, pid;
+
+      for (pid = 0; pid < 8 && processActive[pid] != 0; pid++) {
+      }
+
+        processSeg = seg(pid);
+
+        for (i = 0; i < 512 * sectorsRead; i++) {
+          putInMemory(processSeg, i, buf[i]);
         }
 
-        launchProgram(0x2000);
+        initializeProgram(processSeg);
+        processActive[pid] = 1;
+        processStackPointer[pid] = 0xff00;
+        currentPID = pid;
+
+        restoreDataSegment(dataseg);
     }
 }
 
@@ -332,10 +345,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     }
 }
 
-handleTimerInterrupt(int segment, int sp) {
-    // printChar('T');
-    // printChar('i');
-    // printChar('c');
+void handleTimerInterrupt(int segment, int sp) {
+  // printChar('T');
+  // printChar('i');
+  // printChar('c');
 
-    returnFromTimer(segment, sp);
+  returnFromTimer(segment, sp);
 }
