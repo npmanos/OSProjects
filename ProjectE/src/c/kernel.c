@@ -1,6 +1,6 @@
 /* 
     COMP 350 OS Kernel
-    Project D
+    Project E
     Author: Nick Manos
     kernel.c
 */
@@ -32,11 +32,9 @@ void main()
 
     makeInterrupt21();
     interrupt(0x10, 0x3, 0, 0, 0); /* clear screen by setting video mode */
-    interrupt(0x21, 0, "COMP 350 OS vD\r\n\r\n", 0, 0);
+    interrupt(0x21, 0, "COMP 350 OS vE\r\n\r\n", 0, 0);
 
-    //STEP 4
-    // interrupt(0x21, 8, "this is a test message", "tstmg", 3);
-
+    makeTimerInterrupt();
     interrupt(0x21, 4, shell, 0, 0);
 
     // while (1);
@@ -323,4 +321,12 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
         printString("ERROR! Invalid instruction\0");
         break;
     }
+}
+
+handleTimerInterrupt(int segment, int sp) {
+    printChar('T');
+    printChar('i');
+    printChar('c');
+
+    returnFromTimer(segment, sp);
 }

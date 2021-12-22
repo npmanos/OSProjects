@@ -1,6 +1,6 @@
 /* 
     COMP 350 OS Shell
-    Project D
+    Project E
     Author: Nick Manos
     shell.c
 */
